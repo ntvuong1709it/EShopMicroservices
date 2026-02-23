@@ -1,3 +1,5 @@
+using BuildingBlocks.Behaviors;
+using FluentValidation;
 using Marten;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,7 +9,11 @@ TypeAdapterConfig.GlobalSettings.Default.NameMatchingStrategy(NameMatchingStrate
 
 // Register services to the container
 builder.Services.AddCarter();
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 builder.Services.AddMarten(options =>
 {
     options.Connection(builder.Configuration.GetConnectionString("Database")!);
